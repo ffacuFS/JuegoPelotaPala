@@ -27,6 +27,7 @@ export default class Game extends Phaser.Scene {
     this.load.image("nivel3", "./public/images/nivel3.jpg");
     this.load.image("pelota", "./public/images/pelota.png");
     this.load.image("cama", "./public/images/cama.png");
+    this.load.image("obstaculo","./public/images/plataforma.png");
   }
 
   create() {
@@ -44,10 +45,12 @@ export default class Game extends Phaser.Scene {
     this.cama = this.physics.add.image(400, 400,
       "cama"
     ).setScale(0.3);
-    this.cama.setSize(740,200);
+    this.cama.setSize(740,190);
+    this.cama.setOffset(20,30);
     this.cama.setCollideWorldBounds(true);
     this.cama.setBounce(0);
     this.cama.setDepth(100);
+    
 
     this.physics.add.collider(this.pelota, this.cama, this.points, null, this);
     this.cursors = this.input.keyboard.createCursorKeys();
@@ -67,7 +70,6 @@ export default class Game extends Phaser.Scene {
       fontSize: "24px",
       fill: "#000000",
     })
-
   }
 
   update() {
@@ -112,6 +114,19 @@ export default class Game extends Phaser.Scene {
       this.pelota.body.setVelocityY(100, levels.velocidad);
       this.nivelText.setText("Nivel: 3").setDepth(101);
       console.log(levels.velocidad);
+
+      const obstaculoX = Phaser.Math.Between(100, 700); // Generar posición X aleatoria
+      const obstaculoY = Phaser.Math.Between(100, 500); // Generar posición Y aleatoria
+      const obstaculo = this.physics.add.image(obstaculoX, obstaculoY, "obstaculo").setScale(0.2);
+  // Establecer propiedades del obstáculo
+      obstaculo.setCollideWorldBounds(true);
+      obstaculo.setBounce(0);
+      obstaculo.setVelocityX(0, 0);
+      obstaculo.setVelocityY(0, 0);
+      obstaculo.setDepth(100);
+      obstaculo.setSize(900,400);
+  // Agregar colisión con la pelota
+      this.physics.add.collider(this.pelota, obstaculo,this.hitObstaculo, null, this);
       return;
     }
   }
@@ -125,5 +140,15 @@ export default class Game extends Phaser.Scene {
    } else {
      pelota.setVelocityY( levels.velocidad);
      }
+  }
+
+  hitObstaculo(pelota, obstaculo) {
+    obstaculo.setVelocity(0, 0);
+    obstaculo.setAngularVelocity(0);
+    obstaculo.setAcceleration(0);
+    obstaculo.setAngularAcceleration(0);
+    obstaculo.body.immovable = true;
+    // Realizar acciones en caso de colisión con el obstáculo
+    // Por ejemplo, restar puntos o reiniciar la pelota
   }
 }
